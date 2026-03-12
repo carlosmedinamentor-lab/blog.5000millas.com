@@ -1,0 +1,128 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Anchor, Mail, ArrowRight, Loader2 } from 'lucide-react';
+
+export default function App() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus('loading');
+    
+    // Simulate API call
+    setTimeout(() => {
+      setStatus('success');
+    }, 2000);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center relative overflow-hidden font-sans selection:bg-white/20">
+      {/* Radial Gradient Background */}
+      <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center">
+        <div className="w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#1a1a1a] via-[#050505] to-[#050505] opacity-50 blur-3xl rounded-full"></div>
+      </div>
+
+      <main className="relative z-10 flex flex-col items-center justify-center w-full max-w-4xl px-6 py-20 flex-grow">
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-center text-center w-full"
+        >
+          {/* Top Icon */}
+          <motion.div
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="mb-12 text-white/20"
+          >
+            <Anchor size={32} strokeWidth={1.5} />
+          </motion.div>
+
+          {/* Main Title */}
+          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-light tracking-tight mb-8 text-white/90">
+            El Faro de las 5:00 A.M.
+          </h1>
+
+          {/* Subtitle */}
+          <p className="font-serif italic text-white/50 text-lg md:text-xl max-w-2xl leading-relaxed mb-16">
+            Recibe cada madrugada una reflexión multidimensional de 500 palabras diseñada para despertar tu conciencia y pulir tu Identidad Verdadera. Sin poesía, solo verdad profunda.
+          </p>
+
+          {/* Form / Success State Area */}
+          <div className="w-full max-w-md h-24 flex items-center justify-center">
+            <AnimatePresence mode="wait">
+              {status === 'success' ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex flex-col items-center text-center p-8 border border-white/10 rounded-2xl bg-white/[0.02] backdrop-blur-sm w-full"
+                >
+                  <Mail className="text-white/40 mb-4" size={24} strokeWidth={1.5} />
+                  <h3 className="font-serif text-xl text-white/90 mb-2">Te has unido a la expedición.</h3>
+                  <p className="text-white/50 text-sm leading-relaxed">
+                    Busca en tu bandeja de entrada (y en spam) un correo de confirmación. Tu primera lección llegará mañana a las 5:00 a.m.
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.form
+                  key="form"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  onSubmit={handleSubmit}
+                  className="relative flex items-center w-full bg-transparent border border-white/20 rounded-full p-1.5 pl-5 transition-colors focus-within:border-white/40"
+                >
+                  <Mail className="text-white/40 shrink-0" size={18} strokeWidth={1.5} />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Correo electrónico..."
+                    required
+                    disabled={status === 'loading'}
+                    className="flex-grow bg-transparent border-none outline-none text-white placeholder:text-white/30 px-4 text-sm font-light disabled:opacity-50"
+                  />
+                  <button
+                    type="submit"
+                    disabled={status === 'loading' || !email}
+                    className="flex items-center justify-center gap-2 bg-white text-black rounded-full px-6 py-3 hover:bg-white/90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed shrink-0"
+                  >
+                    <span className="text-[10px] font-bold tracking-[0.3em] uppercase mt-[1px]">
+                      Entrar a la tribu
+                    </span>
+                    {status === 'loading' ? (
+                      <Loader2 size={14} className="animate-spin" strokeWidth={2.5} />
+                    ) : (
+                      <ArrowRight size={14} strokeWidth={2.5} />
+                    )}
+                  </button>
+                </motion.form>
+              )}
+            </AnimatePresence>
+          </div>
+
+        </motion.div>
+      </main>
+
+      {/* Footer */}
+      <motion.footer
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 0.5 }}
+        className="relative z-10 pb-8 pt-4 text-center w-full"
+      >
+        <p className="text-[9px] tracking-[0.4em] uppercase text-white/15 font-medium">
+          © 2026 - El Club de las 5.000 Millas - Método BDL
+        </p>
+      </motion.footer>
+    </div>
+  );
+}
