@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Anchor, Mail, ArrowRight, Loader2, ArrowUpRight } from 'lucide-react';
+import { Anchor, Mail, User, ArrowRight, Loader2, ArrowUpRight } from 'lucide-react';
 
 const manifestos = [
   {
@@ -21,19 +21,34 @@ const manifestos = [
 ];
 
 export default function App() {
+  const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !nombre) return;
 
     setStatus('loading');
-    
-    // Simulate API call
-    setTimeout(() => {
-      setStatus('success');
-    }, 2000);
+
+    try {
+      const response = await fetch(
+        'https://services.leadconnectorhq.com/hooks/JjPQcPMDSUM4LdEE0pGZ/webhook-trigger/55986cb3-c02e-4cfa-a845-cc435d70f9eb',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, nombre, source: 'blog_5000millas' }),
+        }
+      );
+
+      if (response.ok) {
+        setStatus('success');
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
   };
 
   return (
@@ -69,7 +84,7 @@ export default function App() {
           </p>
 
           {/* Form / Success State Area */}
-          <div className="w-full max-w-md h-24 flex items-center justify-center">
+          <div className="w-full max-w-md flex items-center justify-center">
             <AnimatePresence mode="wait">
               {status === 'success' ? (
                 <motion.div
@@ -94,22 +109,36 @@ export default function App() {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                   onSubmit={handleSubmit}
-                  className="relative flex items-center w-full bg-[#0d0d0d] border border-white/10 rounded-full p-1.5 pl-5 transition-colors focus-within:border-white/40"
+                  className="flex flex-col gap-3 w-full"
                 >
-                  <Mail className="text-white/40 shrink-0" size={18} strokeWidth={1.5} />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Correo electrónico..."
-                    required
-                    disabled={status === 'loading'}
-                    className="flex-grow bg-transparent border-none outline-none text-white placeholder:text-white/30 px-4 text-sm font-light disabled:opacity-50"
-                  />
+                  <div className="relative flex items-center w-full bg-[#0d0d0d] border border-white/10 rounded-full p-1.5 pl-5 transition-colors focus-within:border-white/40">
+                    <User className="text-white/40 shrink-0" size={18} strokeWidth={1.5} />
+                    <input
+                      type="text"
+                      value={nombre}
+                      onChange={(e) => setNombre(e.target.value)}
+                      placeholder="Tu nombre..."
+                      required
+                      disabled={status === 'loading'}
+                      className="flex-grow bg-transparent border-none outline-none text-white placeholder:text-white/30 px-4 py-2.5 text-sm font-light disabled:opacity-50"
+                    />
+                  </div>
+                  <div className="relative flex items-center w-full bg-[#0d0d0d] border border-white/10 rounded-full p-1.5 pl-5 transition-colors focus-within:border-white/40">
+                    <Mail className="text-white/40 shrink-0" size={18} strokeWidth={1.5} />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Correo electrónico..."
+                      required
+                      disabled={status === 'loading'}
+                      className="flex-grow bg-transparent border-none outline-none text-white placeholder:text-white/30 px-4 py-2.5 text-sm font-light disabled:opacity-50"
+                    />
+                  </div>
                   <button
                     type="submit"
-                    disabled={status === 'loading' || !email}
-                    className="flex items-center justify-center gap-2 bg-white text-black rounded-full px-6 py-3 hover:bg-white/90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed shrink-0"
+                    disabled={status === 'loading' || !email || !nombre}
+                    className="flex items-center justify-center gap-2 bg-white text-black rounded-full px-6 py-3.5 hover:bg-white/90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed w-full"
                   >
                     <span className="text-[10px] font-bold tracking-[0.3em] uppercase mt-[1px]">
                       Entrar a la tribu
@@ -120,6 +149,11 @@ export default function App() {
                       <ArrowRight size={14} strokeWidth={2.5} />
                     )}
                   </button>
+                  {status === 'error' && (
+                    <p className="text-red-400/80 text-xs text-center mt-1">
+                      Algo salió mal. Inténtalo de nuevo.
+                    </p>
+                  )}
                 </motion.form>
               )}
             </AnimatePresence>
