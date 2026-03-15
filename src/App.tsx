@@ -1,213 +1,194 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Anchor, Mail, User, ArrowRight, Loader2, ArrowUpRight } from 'lucide-react';
-
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+const WEBHOOK = 'https://services.leadconnectorhq.com/hooks/JjPQcPMDSUM4LdEE0pGZ/webhook-trigger/55986cb3-c02e-4cfa-a845-cc435d70f9eb'
 const manifestos = [
-  {
-    id: 1,
-    title: "El peso invisible del Árbol de la Muerte",
-    excerpt: "La culpa no es un sentimiento, es una táctica de tu ego para mantenerte anclado en un puerto que ya no existe. Despertar exige cortar la cuerda."
-  },
-  {
-    id: 2,
-    title: "El Diamante y la tiranía del confort",
-    excerpt: "Huyes de la presión porque te enseñaron que la paz es ausencia de conflicto. Pero el carbón nunca se transforma en el sofá de tu sala."
-  },
-  {
-    id: 3,
-    title: "Soberanía interior frente al ruido",
-    excerpt: "Si tu agenda la dictan las urgencias de otros, no eres un líder, eres un empleado de las circunstancias. Retoma el timón."
-  }
-];
-
+  { id: 1, title: "El peso invisible del Árbol de la Muerte", excerpt: "Debajo de cada comportamiento destructivo hay una raíz que nadie te enseñó a ver. Culpa, vergüenza, miedo — las raíces invisibles que dirigen tu vida mientras crees que eres libre." },
+  { id: 2, title: "El Diamante y la tiranía del confort", excerpt: "Un diamante es carbón que soportó presión extraordinaria. Tu zona de confort no te protege — te entierra. La transformación exige fuego." },
+  { id: 3, title: "Soberanía interior frente al ruido", excerpt: "El mundo te dice quién deberías ser. Tu ego repite el guion. Pero dentro de ti hay una voz antigua que no necesita aplausos. Es tu león interior." }
+]
+const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }
+const stagger = { visible: { transition: { staggerChildren: 0.15 } } }
 export default function App() {
-  const [nombre, setNombre] = useState('');
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-
+  const [nombre, setNombre] = useState('')
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState<'idle'|'loading'|'success'|'error'>('idle')
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !nombre) return;
-
-    setStatus('loading');
-
+    e.preventDefault()
+    if (!email || !nombre) return
+    setStatus('loading')
     try {
-      const response = await fetch(
-        'https://services.leadconnectorhq.com/hooks/JjPQcPMDSUM4LdEE0pGZ/webhook-trigger/55986cb3-c02e-4cfa-a845-cc435d70f9eb',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, nombre, source: 'blog_5000millas' }),
-        }
-      );
-
-      if (response.ok) {
-        setStatus('success');
-      } else {
-        setStatus('error');
-      }
-    } catch {
-      setStatus('error');
-    }
-  };
-
+      const res = await fetch(WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, nombre, source: 'blog_5000millas' })
+      })
+      setStatus(res.ok ? 'success' : 'error')
+    } catch { setStatus('error') }
+  }
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-white/20 relative overflow-x-hidden">
-      {/* Radial Gradient Background (Top) */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[800px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#1a1a1a] via-[#050505] to-transparent opacity-50 blur-3xl pointer-events-none z-0"></div>
+    <div style={{ minHeight: '100vh', background: '#0a0a0a', color: '#e8e8e8' }}>
 
-      {/* SECTION 1: HERO Y CAPTURA */}
-      <section className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-20 w-full max-w-4xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col items-center text-center w-full"
-        >
-          {/* Top Icon */}
-          <motion.div
-            animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.8, 0.5] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="mb-12 text-white/20"
-          >
-            <Anchor size={32} strokeWidth={1.5} />
-          </motion.div>
-
-          {/* Main Title */}
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-light tracking-tight mb-8 text-white/90">
-            El Faro de las 5:00 A.M.
-          </h1>
-
-          {/* Subtitle */}
-          <p className="font-serif italic text-white/50 text-lg md:text-xl max-w-2xl leading-relaxed mb-16">
-            Recibe cada madrugada una reflexión multidimensional de 500 palabras diseñada para despertar tu conciencia y pulir tu Identidad Verdadera.
-          </p>
-
-          {/* Form / Success State Area */}
-          <div className="w-full max-w-md flex items-center justify-center">
-            <AnimatePresence mode="wait">
-              {status === 'success' ? (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  className="flex flex-col items-center text-center p-8 border border-white/10 rounded-2xl bg-white/[0.02] backdrop-blur-sm w-full"
-                >
-                  <Mail className="text-white/40 mb-4" size={24} strokeWidth={1.5} />
-                  <h3 className="font-serif text-xl text-white/90 mb-2">Te has unido a la expedición.</h3>
-                  <p className="text-white/50 text-sm leading-relaxed">
-                    Busca en tu bandeja de entrada (y en spam) un correo de confirmación. Tu primera lección llegará mañana a las 5:00 a.m.
-                  </p>
-                </motion.div>
-              ) : (
-                <motion.form
-                  key="form"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  onSubmit={handleSubmit}
-                  className="flex flex-col gap-3 w-full"
-                >
-                  <div className="relative flex items-center w-full bg-[#0d0d0d] border border-white/10 rounded-full p-1.5 pl-5 transition-colors focus-within:border-white/40">
-                    <User className="text-white/40 shrink-0" size={18} strokeWidth={1.5} />
-                    <input
-                      type="text"
-                      value={nombre}
-                      onChange={(e) => setNombre(e.target.value)}
-                      placeholder="Tu nombre..."
-                      required
-                      disabled={status === 'loading'}
-                      className="flex-grow bg-transparent border-none outline-none text-white placeholder:text-white/30 px-4 py-2.5 text-sm font-light disabled:opacity-50"
-                    />
-                  </div>
-                  <div className="relative flex items-center w-full bg-[#0d0d0d] border border-white/10 rounded-full p-1.5 pl-5 transition-colors focus-within:border-white/40">
-                    <Mail className="text-white/40 shrink-0" size={18} strokeWidth={1.5} />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Correo electrónico..."
-                      required
-                      disabled={status === 'loading'}
-                      className="flex-grow bg-transparent border-none outline-none text-white placeholder:text-white/30 px-4 py-2.5 text-sm font-light disabled:opacity-50"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={status === 'loading' || !email || !nombre}
-                    className="flex items-center justify-center gap-2 bg-white text-black rounded-full px-6 py-3.5 hover:bg-white/90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed w-full"
-                  >
-                    <span className="text-[10px] font-bold tracking-[0.3em] uppercase mt-[1px]">
-                      Entrar a la tribu
-                    </span>
-                    {status === 'loading' ? (
-                      <Loader2 size={14} className="animate-spin" strokeWidth={2.5} />
-                    ) : (
-                      <ArrowRight size={14} strokeWidth={2.5} />
-                    )}
-                  </button>
-                  {status === 'error' && (
-                    <p className="text-red-400/80 text-xs text-center mt-1">
-                      Algo salió mal. Inténtalo de nuevo.
-                    </p>
-                  )}
-                </motion.form>
-              )}
-            </AnimatePresence>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* SECCIÓN 2: LOS 3 MANIFIESTOS */}
-      <section className="relative z-10 w-full max-w-5xl mx-auto px-6 pb-32">
-        {/* Encabezado de Sección */}
-        <div className="border-t border-white/5 pt-8 mb-12 text-center">
-          <h2 className="text-[10px] tracking-widest uppercase text-white/20 font-sans">
-            Registros recientes de la expedición
-          </h2>
-        </div>
-
-        {/* Grid de Artículos */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {manifestos.map((manifesto, index) => (
-            <motion.article
-              key={manifesto.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, delay: index * 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="group flex flex-col border-t border-white/10 pt-6 hover:border-white/40 transition-colors duration-500 cursor-pointer bg-transparent"
-            >
-              <span className="text-[9px] font-sans tracking-widest text-white/40 uppercase mb-3">
-                Hoy | 5:00 A.M.
-              </span>
-              
-              <h3 className="font-serif text-xl md:text-2xl leading-snug text-white/90 transition-transform duration-500 group-hover:translate-x-2">
-                {manifesto.title}
-              </h3>
-              
-              <p className="font-serif italic text-sm text-white/50 mt-3 line-clamp-3 leading-relaxed">
-                {manifesto.excerpt}
-              </p>
-              
-              <div className="mt-6 flex items-center gap-1 text-xs font-sans uppercase tracking-wider text-white/30 group-hover:text-white transition-colors duration-500 mt-auto pt-4">
-                <span>Leer manifiesto</span>
-                <ArrowUpRight size={14} strokeWidth={1.5} className="transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </div>
-            </motion.article>
-          ))}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="relative z-10 pb-12 text-center w-full">
-        <p className="text-[9px] tracking-[0.4em] uppercase text-white/15 font-sans">
-          © 2026 - El Club de las 5.000 Millas - Método BDL
+      {/* HEADER */}
+      <motion.header
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.2 }}
+        style={{ padding: '48px 0 0', textAlign: 'center' }}
+      >
+        <p style={{ fontFamily: 'Georgia, serif', fontSize: 11, letterSpacing: 6, color: '#d4a574', textTransform: 'uppercase', margin: 0 }}>5.000 Millas</p>
+        <div style={{ width: 40, height: 1, background: '#d4a574', margin: '16px auto 0' }} />
+      </motion.header>
+      {/* HERO — MENSAJE CENTRAL */}
+      <motion.section
+        initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.8, delay: 0.3 }}
+        style={{ maxWidth: 600, margin: '0 auto', padding: '52px 24px 0', textAlign: 'center' }}
+      >
+        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(34px, 7vw, 52px)', fontWeight: 400, lineHeight: 1.15, color: '#ffffff', margin: '0 0 20px', letterSpacing: -1 }}>
+          Transforma tu identidad.
+        </h1>
+        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 16, lineHeight: 1.8, color: '#999', margin: '0 0 20px', maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
+          Un manifiesto diario a las 5:00 AM sobre autoconocimiento, poder interior y dominio propio.
         </p>
+        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: '#555', margin: 0, letterSpacing: 1 }}>
+          Carlos Medina · +1.000 vidas impactadas · Método BDL
+        </p>
+      </motion.section>
+      {/* FORM */}
+      <motion.section
+        initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.8, delay: 0.6 }}
+        style={{ maxWidth: 400, margin: '40px auto 0', padding: '0 24px' }}
+      >
+        {status === 'success' ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }}
+            style={{ textAlign: 'center', padding: '48px 0' }}
+          >
+            <p style={{ fontFamily: 'Georgia, serif', fontSize: 14, color: '#d4a574', letterSpacing: 4, textTransform: 'uppercase', margin: '0 0 16px' }}>✦</p>
+            <p style={{ fontFamily: 'Georgia, serif', fontSize: 22, color: '#ffffff', margin: '0 0 12px' }}>Bienvenido al Faro</p>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, color: '#888' }}>Revisa tu email. Tu primer manifiesto está en camino.</p>
+          </motion.div>
+        ) : (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <input
+              type="text" placeholder="Tu nombre" required value={nombre}
+              onChange={e => setNombre(e.target.value)}
+              style={{ background: 'transparent', border: '1px solid #222', padding: '14px 18px', fontSize: 15, color: '#e8e8e8', fontFamily: 'Inter, system-ui, sans-serif', outline: 'none', borderRadius: 2, transition: 'border 0.3s' }}
+              onFocus={e => e.target.style.borderColor = '#d4a574'}
+              onBlur={e => e.target.style.borderColor = '#222'}
+            />
+            <input
+              type="email" placeholder="Tu email" required value={email}
+              onChange={e => setEmail(e.target.value)}
+              style={{ background: 'transparent', border: '1px solid #222', padding: '14px 18px', fontSize: 15, color: '#e8e8e8', fontFamily: 'Inter, system-ui, sans-serif', outline: 'none', borderRadius: 2, transition: 'border 0.3s' }}
+              onFocus={e => e.target.style.borderColor = '#d4a574'}
+              onBlur={e => e.target.style.borderColor = '#222'}
+            />
+            <button
+              type="submit"
+              disabled={status === 'loading' || !nombre || !email}
+              style={{ background: '#d4a574', color: '#0a0a0a', border: 'none', padding: '16px', fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', cursor: 'pointer', borderRadius: 2, fontFamily: 'Inter, system-ui, sans-serif', transition: 'all 0.3s', opacity: (status === 'loading' || !nombre || !email) ? 0.5 : 1 }}
+              onMouseEnter={e => { if (status !== 'loading') e.currentTarget.style.background = '#e8c9a0' }}
+              onMouseLeave={e => e.currentTarget.style.background = '#d4a574'}
+            >
+              {status === 'loading' ? 'Enviando...' : 'Recibir manifiesto diario'}
+            </button>
+            <p style={{ fontSize: 11, color: '#333', textAlign: 'center', margin: '4px 0 0', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              Sin spam. Solo verdad. Cada día a las 5:00 AM.
+            </p>
+          </form>
+        )}
+      </motion.section>
+      {/* DIVIDER */}
+      <div style={{ maxWidth: 600, margin: '56px auto', padding: '0 24px' }}>
+        <div style={{ borderBottom: '1px solid #141414' }} />
+      </div>
+      {/* WHAT YOU GET */}
+      <motion.section
+        initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} variants={stagger}
+        style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px' }}
+      >
+        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, letterSpacing: 4, color: '#444', textTransform: 'uppercase', margin: '0 0 20px' }}>Qué recibirás</p>
+        {[
+          'Reflexiones basadas en el Método BDL — Barco, Diamante, León',
+          'Herramientas prácticas para las 7 dimensiones de tu vida',
+          'Historias reales de transformación',
+          'Verdades incómodas que necesitas escuchar'
+        ].map((item, i) => (
+          <motion.div key={i} variants={fadeUp} style={{ display: 'flex', gap: 14, padding: '13px 0', borderBottom: '1px solid #111' }}>
+            <span style={{ color: '#d4a574', fontFamily: 'Georgia, serif', fontSize: 14, flexShrink: 0, paddingTop: 1 }}>→</span>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 14, lineHeight: 1.7, color: '#888', margin: 0 }}>{item}</p>
+          </motion.div>
+        ))}
+      </motion.section>
+      {/* DIVIDER */}
+      <div style={{ maxWidth: 600, margin: '56px auto', padding: '0 24px' }}>
+        <div style={{ borderBottom: '1px solid #141414' }} />
+      </div>
+      {/* NOMBRE DEL NEWSLETTER */}
+      <motion.section
+        initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ duration: 0.8 }}
+        style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px', textAlign: 'center' }}
+      >
+        <p style={{ fontFamily: 'Georgia, serif', fontSize: 13, color: '#d4a574', fontStyle: 'italic', letterSpacing: 1, margin: '0 0 8px' }}>El Faro de las 5:00 AM</p>
+        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: '#555', margin: 0 }}>La newsletter del movimiento 5.000 Millas</p>
+      </motion.section>
+      {/* DIVIDER */}
+      <div style={{ maxWidth: 600, margin: '56px auto', padding: '0 24px' }}>
+        <div style={{ borderBottom: '1px solid #141414' }} />
+      </div>
+      {/* MANIFIESTOS */}
+      <motion.section
+        initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-50px' }} variants={stagger}
+        style={{ maxWidth: 600, margin: '0 auto', padding: '0 24px' }}
+      >
+        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, letterSpacing: 4, color: '#444', textTransform: 'uppercase', margin: '0 0 20px' }}>Manifiestos recientes</p>
+        {manifestos.map(m => (
+          <motion.div
+            key={m.id} variants={fadeUp}
+            style={{ background: '#0f0f0f', border: '1px solid #1a1a1a', padding: '24px 24px', marginBottom: 10, borderRadius: 2, cursor: 'pointer', transition: 'border-color 0.3s' }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = '#d4a574'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = '#1a1a1a'}
+          >
+            <h3 style={{ fontFamily: 'Georgia, serif', fontSize: 17, fontWeight: 400, color: '#e8e8e8', margin: '0 0 8px', lineHeight: 1.4 }}>{m.title}</h3>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, lineHeight: 1.7, color: '#666', margin: 0 }}>{m.excerpt}</p>
+          </motion.div>
+        ))}
+      </motion.section>
+      {/* DIAGNOSTIC CTA */}
+      <motion.section
+        initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ duration: 0.8 }}
+        style={{ maxWidth: 600, margin: '56px auto 0', padding: '0 24px', textAlign: 'center' }}
+      >
+        <div style={{ background: '#0f0f0f', border: '1px solid #1a1a1a', borderRadius: 2, padding: '36px 28px' }}>
+          <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, letterSpacing: 4, color: '#444', textTransform: 'uppercase', margin: '0 0 16px' }}>Tu siguiente paso</p>
+          <p style={{ fontFamily: 'Georgia, serif', fontSize: 20, color: '#fff', margin: '0 0 8px', fontWeight: 400 }}>Descubre quién eres realmente.</p>
+          <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 13, color: '#666', margin: '0 0 24px' }}>Diagnóstico gratuito de autoconocimiento en 7 dimensiones. 5 minutos.</p>
+          <a
+            href="https://5000millas.com"
+            style={{ display: 'inline-block', background: 'transparent', border: '1px solid #d4a574', color: '#d4a574', padding: '12px 32px', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, letterSpacing: 3, textTransform: 'uppercase', textDecoration: 'none', borderRadius: 2, transition: 'all 0.3s' }}
+            onMouseEnter={(e: any) => { e.target.style.background = '#d4a574'; e.target.style.color = '#0a0a0a' }}
+            onMouseLeave={(e: any) => { e.target.style.background = 'transparent'; e.target.style.color = '#d4a574' }}
+          >
+            Iniciar diagnóstico
+          </a>
+        </div>
+      </motion.section>
+      {/* QUOTE */}
+      <motion.section
+        initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ duration: 0.8 }}
+        style={{ maxWidth: 600, margin: '56px auto', padding: '0 24px' }}
+      >
+        <div style={{ borderLeft: '2px solid #d4a574', padding: '16px 0 16px 24px' }}>
+          <p style={{ fontFamily: 'Georgia, serif', fontSize: 15, lineHeight: 1.7, color: '#777', fontStyle: 'italic', margin: '0 0 10px' }}>
+            "El método BDL no pretende crear seguidores.<br/>Pretende despertar soberanos."
+          </p>
+          <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#444', margin: 0 }}>— Carlos Medina, Fundador de 5.000 Millas</p>
+        </div>
+      </motion.section>
+      {/* FOOTER */}
+      <footer style={{ maxWidth: 600, margin: '0 auto', padding: '32px 24px 48px', textAlign: 'center', borderTop: '1px solid #111' }}>
+        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, letterSpacing: 3, color: '#2a2a2a', textTransform: 'uppercase', margin: '0 0 6px' }}>5.000 Millas — Erradicando la pobreza mental</p>
+        <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 10, letterSpacing: 2, color: '#333', margin: '0 0 10px' }}>Líderes en autoeducación, macroeconomía e innovación</p>
+        <a href="https://instagram.com/oficialcarlosmedina" style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 11, color: '#d4a574', textDecoration: 'none' }}>@oficialcarlosmedina</a>
       </footer>
     </div>
-  );
+  )
 }
